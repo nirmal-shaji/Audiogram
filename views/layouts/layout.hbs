@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <title>Audiogram</title>
+    {{!-- <link rel='stylesheet' href='/stylesheets/style.css' /> --}}
+  </head> 
+  <body>
+    {{#if userheader}}
+    {{>user-header}}
+    {{else if guestheader}}
+    {{>guest-header}}
+    {{/if}}
+    {{{body}}}
+  </body>
+</html> 
