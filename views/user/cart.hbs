@@ -244,6 +244,7 @@
                                             <th class="product_thumb">Image</th>
                                             <th class="product_name">Product</th>
                                             <th class="product-price">Price</th>
+                                            <th class="product-price">Discount</th>
                                             <th class="product_quantity">Quantity</th>
                                             <th class="product_total">Total</th>
                                         </tr>
@@ -252,18 +253,24 @@
                                         <!-- Start Cart Single Item-->
                                         {{#each cartData.products}}
                                         <tr>
-                                            <td class="product_remove"><a href="#"><i class="fa fa-trash-o"></i></a>
+                                            
+                                            <td class="product_remove"><a href=""  onclick="deleteProduct('{{this.productId._id}}','{{@index}}');" ><i class="fa fa-trash-o"></i></a>
                                             </td>
                                             <td class="product_thumb"><a href="product-details-default.html"><img
                                                         src="/product_uploads/{{this.productId.imagepath.[0]}}"
                                                         alt=""></a></td>
                                             <td class="product_name"><a href="product-details-default.html">{{this.productId.name}}</a></td>
-                                            <td class="product-price">$65.00</td>
-                                            <td class="product_quantity"><label>{{this.productId.quantity}}</label> <input min="1"
-                                                    max="100" value="1" type="number"></td>
-                                            <td class="product_total">$130.00</td>
+                                            <td class="product-price">&#8377; {{this.productId.amount}}</td>
+                                            <td class="product-price">&#8377; {{this.productId.discount}}</td>
+                                        
+                                            <td class="product_quantity"><label></label> <input min="1"
+                                                    max="100" value="{{this.quantity}}" type="number" id="{{this.productId._id}}" onclick="changeQuantity('{{this.productId._id}}','{{@index}}');" ></td>
+                                             
+                                            <td class="product_total" id="{{this.productId._id}}price">&#8377;{{total this.productId.amount this.productId.discount this.quantity}}
                                         </tr> 
-                                    {{/each}}<!-- End Cart Single Item-->
+                                         {{/each}}
+                                   
+                                    <!-- End Cart Single Item--> 
                                         <!-- Start Cart Single Item-->
                                         {{!-- <tr>
                                             <td class="product_remove"><a href="#"><i class="fa fa-trash-o"></i></a>
@@ -314,7 +321,7 @@
                             <div class="coupon_inner">
                                 <p>Enter your coupon code if you have one.</p>
                                 <input class="mb-2" placeholder="Coupon code" type="text">
-                                <button type="submit" class="btn btn-md btn-golden">Apply coupon</button>
+                                <button type="submit" class="btn btn-md btn-golden" >Apply coupon</button>
                             </div>
                         </div>
                     </div>
@@ -322,19 +329,19 @@
                         <div class="coupon_code right" data-aos="fade-up" data-aos-delay="400">
                             <h3>Cart Totals</h3>
                             <div class="coupon_inner">
-                                <div class="cart_subtotal">
+                                {{!-- <div class="cart_subtotal">
                                     <p>Subtotal</p>
-                                    <p class="cart_amount">$215.00</p>
-                                </div>
-                                <div class="cart_subtotal ">
+                                    <p class="cart_amount">{{totalAmount}}</p>
+                                </div> --}}
+                                {{!-- <div class="cart_subtotal ">
                                     <p>Shipping</p>
                                     <p class="cart_amount"><span>Flat Rate:</span> $255.00</p>
                                 </div>
-                                <a href="#">Calculate shipping</a>
+                                <a href="#">Calculate shipping</a> --}}
 
                                 <div class="cart_subtotal">
                                     <p>Total</p>
-                                    <p class="cart_amount">$215.00</p>
+                                    <p class="cart_amount" id="totalAmount">&#8377;{{totalAmount}}</p>
                                 </div>
                                 <div class="checkout_btn">
                                     <a href="#" class="btn btn-md btn-golden">Proceed to Checkout</a>
@@ -723,57 +730,56 @@
 
     <!-- Use the minified version files listed below for better performance and remove the files listed above -->
 <script>
-    function addToCart(proId) {
-  $.ajax({
-    url: '/add-to-cart/' + proId,
-    method: 'get',
-    success: (response) => {
-      if (response.status) {
-        let count = $('#cart-count').html()
-        count = parseInt(count) + 1
-        $('#cart-count').html(count)
-      }
-      // alert(response)
-      swal("Good job!", "Sucessfully Added to cart", "success");
-    }
-  })
 
-}
 
-function changeQuantity(cartId, proId, count) {
-  let quantity = parseInt(document.getElementById(proId).value)
-  count = parseInt(count)
+function changeQuantity(proId,index) {
+    console.log('hihiiih');
+  count= parseInt(document.getElementById(proId).value)
+  console.log(proId);
+  console.log(document.getElementById(proId).value,"eerr")
+  console.log(index)
+  
+  
 
   $.ajax({
-    url: '/change-product-quantity',
+    url: '/incrementQuantity',
     data: {
-      cart: cartId,
-      product: proId,
-      count: count,
-      quantity: quantity
+      
+      product: proId,           
+      quantity: count,
+      index:index
 
     },
-
-    method: 'post',
+     method: 'post',
     success: (response) => {
-      if (response.removeProduct) {
-        alert("product removed cart")
-        location.reload()
-      } else {
-        document.getElementById(proId).value = quantity + count
-      }
+        console.log(response)
+      
+         
+        document.getElementById(proId).value = response.quantity;
+        log=proId+'price'
+        console.log('hi')
+        console.log(log);
+        console.log(response)
+        $('#'+proId+'price').text(response.price);
 
-    }
+        $('#totalAmount').text(response.totalAmount);
+      
+
+    },
+    error: (error) => {
+        alert('hierror')
+        console.log(error)
+    },
   })
 }
 
 
-function deleteProduct(cartId, proId) {
+  function deleteProduct(proId,index) {
 
   $.ajax({
-    url: '/delete-product',
+    url: '/deleteProduct',
     data: {
-      cart: cartId,
+      index: index,
       product: proId,
 
     },
@@ -782,19 +788,18 @@ function deleteProduct(cartId, proId) {
     success: (response) => {
     
       if (response) {
-        alert("delete")
+        
         // swal("Deleted Successflly");
 
-        $("#mydiv").load(location.href + " #mydiv");
+        
         location.reload();
-      } else {
-        $("#mydiv").load(location.href + " #mydiv");
-
-      }
+        alert("deleted successfully")
+      } 
 
     }
 
-  })
+      })
+      }
   </script>
     <script src="/assets/js/vendor/vendor.min.js"></script>
     <script src="/assets/js/plugins/plugins.min.js"></script>

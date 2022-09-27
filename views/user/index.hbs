@@ -311,15 +311,15 @@
                                             </div>
                                             <div class="action-link">
                                                 <div class="action-link-left">
-                                                <a  href="/cart/{{this._id}}"
-                                                         id="carts">Add to Cart</a>
+                                                <a  href=""
+                                                         id="" onclick="addToCart('{{this._id}}');">Add to Cart</a>
                                                 </div>
                                                 <div class="action-link-right">
                                                     <button>
                                                     <a href="#" id="addedcart"><i
                                                             class="icon-magnifier"></i></a>
                                                             </button>
-                                                    <a href="wishlist.html"><i class="icon-heart"></i></a>
+                                                    <a href="" id="wish" onclick="addToWishlist('{{this._id}}');"><i class="icon-heart"></i></a>
                                                     <a href="compare.html"><i class="icon-shuffle"></i></a>
                                                 </div>
                                             </div>
@@ -1846,26 +1846,74 @@
             </div>
         </div>
     </div> <!-- End Modal Quickview cart -->
-      {{!-- <script >
-        $("#cart").on("click",function () {
-          
-          $('#imagepreview').attr('src', $(this).find('image').attr('src'));
-          
-        });
-    </script> --}}
+    
+    
     <script>
-      $(document).ready(function(){ $('#carts').on('click',()=>{
-        axios.get('/cart').then(e=>{
-          swal({
-  title: "Product added!",
-  text: "Product is succefully added to your cart!",
-  icon: "success",
-});  
-        })
-        })
-         })
 
-    </script>
+
+function addToCart(proId) {
+    console.log('hihiiih');
+
+  
+  
+
+  $.ajax({
+    url: '/cart',
+    data: {
+      
+      product: proId,           
+
+    },
+     method: 'post',
+    success: (response) => {
+        if(response){
+        location.reload();
+        alert("item added to card");
+        }
+
+    },
+    error: (error) => {
+   console.log(error,"the err")
+
+        alert('hierror')
+    },
+    done:()=>{
+        alert('test');
+    },
+  },)
+}
+
+
+  function addToWishlist(proId) {
+ console.log("gihgighigh");
+  $.ajax({
+    url: '/wishlist',
+    data: {
+      
+      product: proId,
+
+    },
+
+    method: 'post',
+    success: (response) => {
+    
+      if (response) {
+        
+        // swal("Deleted Successflly");
+
+        
+        location.reload();
+        alert("added to wishlist");
+      } 
+
+    },
+    error:(error)=>{
+        alert(error)
+    }
+
+      },)
+      }
+  </script>
 
     <!-- ::::::::::::::All JS Files here :::::::::::::: -->
     <!-- Global Vendor, plugins JS -->

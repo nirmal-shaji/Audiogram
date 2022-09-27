@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref:'Category'
     },
-    description: {
+    description: { 
         type:String
     },
     stock: {
