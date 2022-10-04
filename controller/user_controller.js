@@ -2,8 +2,9 @@ var express = require("express");
 var router = express.Router();
 var mongoose = require("mongoose");
 var usersModel = require("../model/userschema");
-var categoryModel = require("../model/categoryschema")
+var categoryModel = require("../model/categoryschema");
 var productModel = require('../model/productschema');
+var addressModel=require('../model/addressSchema')
 const bcrypt = require("bcrypt");
 const otp=require('./otp');
 const { VerificationAttemptContext } = require("twilio/lib/rest/verify/v2/verificationAttempt");
@@ -102,5 +103,12 @@ module.exports = {
       res.redirect('/')
     }
   },
+  
+  renderProfile: async (req, res, next) => {
+    userData = await usersModel.findOne({ _id: req.session.userId._id }).lean();
+    console.log(userData);
+    addressData = await addressModel.find({ userId: req.session.userId._id }).lean();
+    res.render("user/profile", { userData,addressData});
+  }
  
 };

@@ -263,9 +263,10 @@
                                             <td class="product-price">&#8377; {{this.productId.amount}}</td>
                                             <td class="product-price">&#8377; {{this.productId.discount}}</td>
                                         
-                                            <td class="product_quantity"><label></label> <input min="1"
-                                                    max="100" value="{{this.quantity}}" type="number" id="{{this.productId._id}}" onclick="changeQuantity('{{this.productId._id}}','{{@index}}');" ></td>
-                                             
+                                            <td class="product_quantity"><label></label> 
+                                            <a onclick="changeQuantity('{{this.productId._id}}','{{@index}}');"><input min="1"
+                                                    max="100" value="{{this.quantity}}" type="number" id="{{this.productId._id}}"  ></td>
+                                             </a>
                                             <td class="product_total" id="{{this.productId._id}}price">&#8377;{{total this.productId.amount this.productId.discount this.quantity}}
                                         </tr> 
                                          {{/each}}
@@ -344,7 +345,7 @@
                                     <p class="cart_amount" id="totalAmount">&#8377;{{totalAmount}}</p>
                                 </div>
                                 <div class="checkout_btn">
-                                    <a href="#" class="btn btn-md btn-golden">Proceed to Checkout</a>
+                                    <a href="/checkout" class="btn btn-md btn-golden">Proceed to Checkout</a>
                                 </div>
                             </div>
                         </div>
@@ -792,8 +793,9 @@ function changeQuantity(proId,index) {
         // swal("Deleted Successflly");
 
         
-        location.reload();
+        
         alert("deleted successfully")
+        location.reload();
       } 
 
     }

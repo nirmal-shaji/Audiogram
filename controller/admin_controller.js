@@ -5,6 +5,7 @@ var usersModel = require("../model/userschema");
 var categoryModel = require("../model/categoryschema")
 var productModel = require('../model/productschema');
 var adminModel = require('../model/adminschema');
+const orderModel = require('../model/orderSchema');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -76,10 +77,14 @@ module.exports = {
         res.render('admin/addcategory');
     },
     createcategory: async (req, res, next) => {  
-        let categoryexist = await categoryModel.findOne({ category: req.body.category }).lean();
+        let categorydata = await categoryModel.find().lean();
+        categoryexist = categorydata.filter((i) => {
+            if (i.category.toUpperCase() === req.body.category.toUpperCase())
+                return true;
+         })
         // let subcategoryexist = await categoryModel.findOne({ sub_category: req.body.sub_category }).lean();
         console.log('the category is ',categoryexist)
-        if (categoryexist) {
+        if (categoryexist[0]) {
             return res.send('category already exist');
         }
         await categoryModel.create(req.body);
@@ -171,6 +176,11 @@ module.exports = {
         imagepat.imagepath.map((i) => fs.unlinkSync(path.join(__dirname, '..', 'public', 'product_uploads', i)));
         await productModel.findOneAndDelete({ "_id": req.params.id }, { $set: { "name": req.body.name , "brandName": req.body.brandName,'description':req.body.description,'category':req.body.category,'stock':req.body.stock,'amount':req.body.amount,'discount':req.body.discount,'imagepath':req.body.imagepath} });
         res.redirect('/admin/productTable'); 
+    },
+    orderData: async(req, res, next) => {
+        orderData = await orderModel.find().populate("userId").lean(); 
+        console.log(orderData);
+        res.render('admin/tableorderData',{orderData})
     }
     
 

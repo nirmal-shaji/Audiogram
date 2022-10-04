@@ -408,7 +408,7 @@
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th scope="col">#</th>
+                                            <th scope="col">Index</th>
                                             <th scope="col">Category</th>
                                         
                                             <th scope="col">Edit-Category</th>
@@ -421,7 +421,7 @@
                                     <tbody>
                                      {{#each categorydata}}
                                         <tr>
-                                            <th scope="row">{{@index}}</th>
+                                            <th scope="row">{{inc1 @index}}</th>
                                             <td>{{this.category}}</td>
                                            
                                             <td><a href="/admin/editcategory/{{this._id}}"><i class="bi bi-pencil-square"></i></a></td>

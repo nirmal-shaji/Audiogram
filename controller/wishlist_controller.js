@@ -4,8 +4,7 @@ var mongoose = require("mongoose");
 var usersModel = require("../model/userschema");
 var categoryModel = require("../model/categoryschema")
 var productModel = require('../model/productschema');
-var wishlistModel = require("../model/cartschema");
-var wishlistModel = require('../model/wishlistschema')
+var wishlistModel = require('../model/wishlistschema');
 const product = require("../model/productschema");
 const cartFunctions = require('../controller/cart_functions');
 
@@ -32,12 +31,27 @@ module.exports = {
     },
     wishlistData: async (req, res, next) => {
         userId = req.session.userId;
+        
         wishlistDatas = await wishlistModel.findOne(
             { userId: userId._id }
         ).populate("products.productId").lean();
-     console.log(wishlistDatas)
+        console.log(wishlistDatas);
+        
+        stocks = await Promise.all(wishlistDatas.products.map( async(i) => {
+            console.log(i.productId._id);
+            stock = await productModel.findOne({ _id: i.productId._id }, { _id: 0, stock: 1 }).lean();
+            
+            return stock;
+        }));
+       
+        console.log(stocks);
         // totalAmount = await cartFunctions.totalAmount(cartData);
-        res.render('user/wishlist', { userheader: true, wishlistDatas}) 
+        if (wishlistDatas.products[0]) {
+            res.render('user/wishlist', { userheader: true, wishlistDatas,stocks })
+        }
+        else {
+            res.render('user/emptywishlist')
+        }
     },
     delete: async (req, res, next) => {
         productId = req.body.product

@@ -96,9 +96,16 @@
                                                         alt=""></a></td>
                                             <td class="product_name"><a href="product-details-default.html">{{this.productId.name}}</a></td>
                                             <td class="product-price">{{singleTotal this.productId.amount this.productId.discount}}</td>
-                                            <td class="product_stock">In Stock</td>
+                                            <td class="product_stock">Instock</td>
+                                            {{#each stocks}}
+                                             {{#if this.stock}}
+                                            <td class="product_stock">Instock</td>
+                                            {{else}}
+                                            <td class="product_stock">Out of Stock</td>
+                                            {{/if}}
+                                            {{/each}}
                                             <td class="product_addcart"><a href="#" class="btn btn-md btn-golden"
-                                                    data-bs-toggle="modal" data-bs-target="#modalAddcart">Add To
+                                                    data-bs-toggle="modal" data-bs-target="#modalAddcart" onclick="addToCart('{{this.productId._id}}','{{wishlistDatas._id}}');">Add To
                                                     Cart</a></td>
                                         </tr> 
                                         {{/each}}
@@ -496,33 +503,7 @@
         </div>
     </div> <!-- End Modal Quickview cart -->
 
-<script>
-    function deleteProduct(proId) {
 
-  $.ajax({
-    url: '/deletewishlist',
-    data: {
-      product: proId,
-
-    },
-
-    method: 'post',
-    success: (response) => {
-    
-      if (response) {
-        
-        // swal("Deleted Successflly");
-
-        
-        location.reload();
-        alert("deleted successfully")
-      } 
-
-    }
-
-      })
-      }
-</script>
     <!-- ::::::::::::::All JS Files here :::::::::::::: -->
     <!-- Global Vendor, plugins JS -->
     <!-- <script src="assets/js/vendor/modernizr-3.11.2.min.js"></script>
@@ -550,6 +531,59 @@
 
     <!-- Main JS -->
     <script src="assets/js/main.js"></script>
+    <script>
+        
+function deleteProduct(proId) {
+
+  $.ajax({
+    url: '/deletewishlist',
+    data: {
+      product: proId,
+
+    },
+
+    method: 'post',
+    success: (response) => {
+    
+      if (response) {
+        
+        // swal("Deleted Successflly");
+
+         alert("deleted successfully");
+        location.reload();
+       
+      } 
+
+    }
+
+      })
+      }
+      function addToCart(proId,wishlistId){
+        console.log(wishlistId,proId);
+         $.ajax({
+    url: '/cart',
+    data: {
+      product: proId,
+      wishlist:true,
+    },
+
+    method: 'post',
+    success: (response) => {
+    
+      if (response) {
+        
+        // swal("Deleted Successflly");
+
+         swal("Product added to cart!", "Product added to cart!", "success");
+        location.reload();
+       
+      } 
+
+    }
+
+      })
+      }
+</script>
 </body>
 
 

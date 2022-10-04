@@ -36,6 +36,7 @@ router.post('/addproduct',session.adminSession , upload.array('photos', 5), admi
 router.get('/productTable',session.adminSession , admin.productData);
 router.get('/editProduct/:id',session.adminSession , admin.rendereditProduct);
 router.post('/editProduct/:id',session.adminSession ,upload.array('photos', 5), admin.editProduct);
-router.get('/deleteProduct/:id',session.adminSession , admin.deleteProduct);
+router.get('/deleteProduct/:id', session.adminSession, admin.deleteProduct);
+router.get('/orders', session.adminSession, admin.orderData);
 
 module.exports = router;
