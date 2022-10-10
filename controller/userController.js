@@ -1,20 +1,24 @@
 var express = require("express");
 var router = express.Router();
 var mongoose = require("mongoose");
-var usersModel = require("../model/userschema");
-var categoryModel = require("../model/categoryschema");
-var productModel = require('../model/productschema');
-var addressModel=require('../model/addressSchema')
+var usersModel = require("../model/userSchema");
+var categoryModel = require("../model/categorySchema");
+var productModel = require('../model/productSchema');
+var addressModel = require('../model/addressSchema');
+const couponModel = require('../model/couponSchema');
+const orderModel = require('../model/orderSchema');
 const bcrypt = require("bcrypt");
 const otp=require('./otp');
 const { VerificationAttemptContext } = require("twilio/lib/rest/verify/v2/verificationAttempt");
-const { productData } = require("./admin_controller");
+const { productData, orderData } = require("./adminController");
+const { findOneAndUpdate } = require("../model/userSchema");
 
 module.exports = {
   home: async (req, res, next) => {
     productDatas = await productModel.find().lean();
+    couponData = await couponModel.find().lean();
     if (req.session.userLogin) 
-    return res.render('user/index',{userheader:true,productDatas});
+    return res.render('user/index',{userheader:true,productDatas,couponData});
     
     res.render('user/index',{guestheader:true,productDatas});
   },
@@ -108,7 +112,9 @@ module.exports = {
     userData = await usersModel.findOne({ _id: req.session.userId._id }).lean();
     console.log(userData);
     addressData = await addressModel.find({ userId: req.session.userId._id }).lean();
-    res.render("user/profile", { userData,addressData});
-  }
- 
+    orderDatas = await orderModel.find({ userId: req.session.userId._id }).populate('products.productId').lean();
+    console.log(orderData);
+    res.render("user/profile", { userheader:true,userData,addressData,orderDatas});
+  },
+
 };

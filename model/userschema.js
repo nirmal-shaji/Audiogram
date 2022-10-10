@@ -13,26 +13,27 @@ const UserSchema = new mongoose.Schema({
   },
   phone_number: {
     type: Number,
-    required:true
+    required: true
   },
   email: {
     type: String,
-    unique:true
+    unique: true
   },
   password: {
     type: String,
-    required:true
+    required: true
   },
   block: {
     type: Boolean,
-    default:false
+    default: false
     
   },
   otpVerified: {
     type: Boolean,
-    default:false
+    default: false
   }
-})
+ 
+});
 
   // UserSchema.plugin(uniqueValidator)
 

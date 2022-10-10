@@ -1,12 +1,12 @@
 var express = require("express");
 var router = express.Router();
 var mongoose = require("mongoose");
-var usersModel = require("../model/userschema");
-var categoryModel = require("../model/categoryschema")
-var productModel = require('../model/productschema');
-var wishlistModel = require('../model/wishlistschema');
-const product = require("../model/productschema");
-const cartFunctions = require('../controller/cart_functions');
+var usersModel = require("../model/userSchema");
+var categoryModel = require("../model/categorySchema")
+var productModel = require('../model/productSchema');
+var wishlistModel = require('../model/wishlistSchema');
+const product = require("../model/productSchema");
+const cartFunctions = require('./cartFunctions');
 
 
 module.exports = {

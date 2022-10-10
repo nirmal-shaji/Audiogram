@@ -42,9 +42,24 @@ const orderSchema = new mongoose.Schema({
       type: {
         type: String,
     },
-    status: {
+    orderStatus: {
         type: String,
         default:"Pending"
+    },
+    paymentType: {
+        type: String,
+        
+    },
+    paymentStatus: {
+        type: String,
+        default:"ordered"
+    },
+    orderId: {
+        type: String,
+        
+    },
+    totalAmount: {
+        type:String
     },
     
     products: [

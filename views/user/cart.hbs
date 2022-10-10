@@ -321,8 +321,10 @@
                             <h3>Coupon</h3>
                             <div class="coupon_inner">
                                 <p>Enter your coupon code if you have one.</p>
-                                <input class="mb-2" placeholder="Coupon code" type="text">
-                                <button type="submit" class="btn btn-md btn-golden" >Apply coupon</button>
+                                <input id="couponId" class="mb-2" placeholder="Coupon code" type="text">
+                                <a  onclick="couponValidator('{{totalAmount}}')">
+                                <button type="button" class="btn btn-md btn-golden" >Apply coupon</button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -738,7 +740,7 @@ function changeQuantity(proId,index) {
   count= parseInt(document.getElementById(proId).value)
   console.log(proId);
   console.log(document.getElementById(proId).value,"eerr")
-  console.log(index)
+  console.log(index);
   
   
 
@@ -801,6 +803,27 @@ function changeQuantity(proId,index) {
     }
 
       })
+      }
+      function couponValidator(total){
+        totalAmount=document.getElementById('totalAmount').text
+        couponId=document.getElementById('couponId').value
+        console.log(couponId,totalAmount);
+         $.ajax({
+    url: '/couponValidation',
+    data: {
+      couponId:couponId,
+      total:total
+      
+
+    },
+
+    method: 'post',
+    success: (response) => {
+        console.log(response);
+          $('#totalAmount').text(response.total);
+          
+    }
+         });
       }
   </script>
     <script src="/assets/js/vendor/vendor.min.js"></script>

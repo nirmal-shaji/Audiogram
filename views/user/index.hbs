@@ -23,11 +23,20 @@
                                     <a href="product-details-default.html" class="btn btn-lg btn-outline-golden">shop
                                         now </a>
                                 </div>
+     {{!-- -------------------------------------------coupon modal---------------------------------------------------------- --}}
+                                <a  data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal"><button type="button" style="background-color: #B19361; border: #B19361;" class="btn btn-primary m-5">
+                                    Coupon Center
+                                </button>
+                                </a>
+     {{!-- --------------------------------------------------------------------------------------------------------------------------------       --}}
+
                             </div>
                         </div>
                     </div>
                 </div>
-            </div> <!-- End Hero Single Slider Item -->
+            </div>
+             <!-- End Hero Single Slider Item -->
             <!-- Start Hero Single Slider Item -->
             <div class="hero-single-slider-item swiper-slide">
                 <!-- Hero Slider Image -->
@@ -1501,6 +1510,7 @@ Session---------------------------------------------------------- --}}
                 </div>
             </div>
         </div>
+        
         <!-- End Footer Top -->
 
         <!-- Start Footer Center -->
@@ -1780,6 +1790,39 @@ Session---------------------------------------------------------- --}}
     </div>
 </div> <!-- End Modal Quickview cart -->
 
+<div class="modal fade  modal-dialog-scrollable"  id="exampleModal" tabindex="-1"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" >
+        <div class="modal-content"  >
+            <div class="modal-header" >
+                <h4 > Coupons you have</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{#each couponData}}
+                <div class="card text-center m-5" style="background-color: #d9cbb4;" >
+                    <div class="card-header">
+                        {{couponName}}
+                    </div>
+                    <div class="card-body p-5" style="background-color: #FEF5EF;" >
+                        <h5 class="card-title">Redeem coupons right now</h5>
+                        <p class="card-text">You have coupon worth {{discountAmount}},redeem it right know your purchase of {{minAmount}}</p>
+                        <a href="" class="btn btn-primary" onclick="copyFunction('{{couponCode}}')">Copy Code</a>
+                    </div>
+                    <div class="card-footer text-muted">
+                        2 days ago
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script>
 
@@ -1808,7 +1851,7 @@ Session---------------------------------------------------------- --}}
 
 
     function addToWishlist(proId) {
-      event.preventDefault()
+        event.preventDefault()
         $.ajax({
             url: '/wishlist',
             data: {
@@ -1821,12 +1864,12 @@ Session---------------------------------------------------------- --}}
             success: (response) => {
 
                 if (response) {
-            
+
 
                     // swal("Deleted Successflly");
 
 
-                     swal("Product added to wishlist!", "Product added to cart!", "success");
+                    swal("Product added to wishlist!", "Product added to cart!", "success");
                 }
 
             },
@@ -1835,6 +1878,12 @@ Session---------------------------------------------------------- --}}
             }
 
         },)
+    }
+    function copyFunction(couponId){
+        event.preventDefault()
+        console.log(couponId);
+    
+         navigator.clipboard.writeText(couponId);
     }
 </script>
 

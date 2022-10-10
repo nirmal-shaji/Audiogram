@@ -1,16 +1,19 @@
 var express = require("express");
 var router = express.Router();
 var mongoose = require("mongoose");
-var usersModel = require("../model/userschema");
-var categoryModel = require("../model/categoryschema")
-var productModel = require('../model/productschema');
-var adminModel = require('../model/adminschema');
+var usersModel = require("../model/userSchema");
+var categoryModel = require("../model/categorySchema")
+var productModel = require('../model/productSchema');
+var adminModel = require('../model/adminSchema');
 const orderModel = require('../model/orderSchema');
+const couponModel = require('../model/couponSchema');
+const bannerModel = require('../model/bannerSchema');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 var session = require('express-session');
 const bcrypt = require("bcrypt");
+const { findOneAndUpdate } = require("../model/userSchema");
 
 
 module.exports = {
@@ -41,12 +44,12 @@ module.exports = {
         
         const userdetails = await usersModel.find().lean();
         res.render('admin/table',{layout:"admin_layout",userdetails})
-        // console.log(userdetails);
+       
     },
     userblock: async (req, res, next) => {
-        // console.log('ethanilla');
+       
         const userIds = req.params.id
-        // console.log(userIds);
+       
         await usersModel.updateOne({_id:userIds}, { block : true });
       
         res.redirect('/admin/table');
@@ -54,9 +57,9 @@ module.exports = {
        
     },
     useractive:async (req, res, next) => {
-        // console.log('ethanilla');
+        
         const userIds = req.params.id
-        // console.log(userIds);
+      
         await usersModel.updateOne({_id:userIds}, { block : false });
       
         res.redirect('/admin/table');
@@ -69,8 +72,7 @@ module.exports = {
         const userId = req.params.id
         const blocks = await usersModel.find({ _id: userId }).lean();
         console.log(blocks, "userdetails");
-        // console.log("ethitooo", userId);
-        // console.log({ userId:userId });
+        
         res.render('admin/form', { layout:"admin_layout",blocks});
     },
       renderaddcategory: (req, res, next) =>{
@@ -82,7 +84,7 @@ module.exports = {
             if (i.category.toUpperCase() === req.body.category.toUpperCase())
                 return true;
          })
-        // let subcategoryexist = await categoryModel.findOne({ sub_category: req.body.sub_category }).lean();
+       
         console.log('the category is ',categoryexist)
         if (categoryexist[0]) {
             return res.send('category already exist');
@@ -102,13 +104,12 @@ module.exports = {
         res.render('admin/editcategory', {layout:"admin_layout",categoryId})
     },
     editcategory: async (req, res, next) => {
-        // const categoryIds = req.params.id;
-        // console.log("cataegory id is",categoryIds);
+        
         await categoryModel.findOneAndUpdate({ "_id": req.params.id }, { $set: { "category": req.body.category  } });
         res.redirect('/admin/categorytable');
     },
     deletecategory: async (req, res, next) => {
-        // const categoryIds = req.params.id;
+    
         await categoryModel.deleteOne({ _id: req.params.id });
         res.redirect('/admin/categorytable');
         
@@ -124,9 +125,7 @@ module.exports = {
             console.log(productnames);
         if (productnames) 
             return res.send('product already exists');
-        // const arrImages = [];
-        // arrImages=map.
-        // console.log(multer.files);
+        
         console.log(req.files);
         const arrImages = req.files.map((value) => value.filename);
         console.log(arrImages);
@@ -141,9 +140,7 @@ module.exports = {
         console.log(productData);
         res.render('admin/tableProduct',{layout:"admin_layout",productData});
     },
-    // rendereditProduct: {
-        
-    // },
+  
     rendereditProduct: async (req, res, next) => {
         editId = req.params.id;
         console.log(req.params.id);
@@ -158,7 +155,7 @@ module.exports = {
         console.log(req.params.id); 
         console.log(req.body);
             let arrImages = req.files.map((value) => value.filename);
-        // console.log(arrImages);
+       
         if (arrImages[0]) {
             imagepat = await productModel.findOne({ "_id": req.params.id }, { imagepath: 1, _id: 0 }).lean();
             console.log(imagepat);
@@ -178,9 +175,85 @@ module.exports = {
         res.redirect('/admin/productTable'); 
     },
     orderData: async(req, res, next) => {
-        orderData = await orderModel.find().populate("userId").lean(); 
-        console.log(orderData);
+        orderData = await orderModel.find().populate("userId").populate("products.productId").lean(); 
+        console.log(orderData.products);
         res.render('admin/tableorderData',{orderData})
+    },
+    renderaddCoupon: (req, res, next) => {
+        res.render('admin/addCoupon');
+    },
+    renderChangeOrderStatus: (req, res, next) => {
+        id = req.params.id;
+        console.log(id);
+        res.render('admin/editOrderStatus',{id});  
+    },
+    editOrderStatus: async (req, res, next) => {
+        await orderModel.findOneAndUpdate({ _id: req.params.id }, { orderStatus: req.body.productStatus });
+        res.redirect('/admin/orders');
+        
+    },addCoupon:async(req, res, next) => {
+        console.log(req.body);
+ 
+    
+        couponNameExist = await couponModel.find({ couponName: req.body.couponName }).lean();
+        console.log(couponNameExist,'234567890');
+        couponIdExist = await couponModel.find({ couponCode: req.body.couponCode }).lean();
+        console.log(couponIdExist)
+        if(couponNameExist[0] || couponIdExist[0])
+        return res.json({ message: "the coupon already exist" });
+        await couponModel.create(req.body);
+        res.redirect('/admin/couponData');
+    },
+    couponData: async (req, res, next) => {
+        couponData = await couponModel.find().lean();
+        res.render('admin/tableCoupon',{couponData})
+    },
+    renderEditCoupon: async (req, res, next) => {
+        id = req.params.id
+        couponData = await couponModel.find({ _id: req.params.id }).lean();
+        console.log(couponData);
+        couponData = couponData[0];
+        res.render('admin/editCoupon', { id, couponData});
+        
+    },
+    editCoupon: async(req, res, next) => {
+        await couponModel.findOneAndUpdate({ _id: req.params.id }, { $set: { couponName:req.body.couponName,discountAmount:req.body.discountAmount,minAmount:req.body.minAmount,expiryDate:req.body.expiryDate,couponCode:req.body.couponCode} })
+        
+        res.redirect('/admin/couponData');
+    },
+    deleteCoupon: async (req, res, next) => {
+    
+        await couponModel.deleteOne({ _id: req.params.id });
+        res.redirect('/admin/couponData');
+        
+    },
+    renderAddBanner: async(req, res, next) => {
+        productData = await productModel.find().lean();
+        categoryData = await categoryModel.find().lean();
+        couponData = await couponModel.find().lean();
+        res.render('admin/addBanner',{productData,categoryData,couponData});
+    },
+    addBanner: async(req, res, next) => {
+        console.log(req.body);
+       
+        req.body.image = req.file.filename;
+        await bannerModel.create(req.body);
+        res.redirect('/admin/bannerData');
+        
+    },
+    bannerData: async(req, res, next) => {
+        bannerData = await bannerModel.find().populate("productId").populate("categoryId").populate("couponId").lean();
+        res.render('admin/tableBanner',{bannerData});
+    },
+    renderEditBanner: async(req, res, next) => {
+        bannerData = await bannerModel.find().lean();
+        productData = await productModel.find().lean();
+        categoryData = await categoryModel.find().lean();
+        couponData = await couponModel.find().lean();
+        res.render('admin/editBanner',{bannerData,categoryData,productData,couponData})
+    },
+    editBanner: (req, res, next) => {
+        console.log(req.body);
     }
     
 
