@@ -33,6 +33,7 @@ module.exports = {
           
         res.render('admin/adminSignIn',{layout:"admin_layout",adminLogin});
         } catch (error) {
+            console.log(error);
             next(error);
         }
        
@@ -57,6 +58,7 @@ module.exports = {
             res.redirect( '/admin');
         }
         } catch (error) {
+            console.log(error);
             next(error);  
         }
       
@@ -103,6 +105,7 @@ module.exports = {
        
         res.json({ message: "success" ,paymentTotal,monthlyTotal});
         } catch (error) {
+            console.log(error);
             next(error);  
         }
        
@@ -113,6 +116,7 @@ module.exports = {
              const userdetails = await usersModel.find().lean();
         res.render('admin/usersTable',{layout:"admin_layout",userdetails})
         } catch (error) {
+            console.log(error);
             next(error);  
         }
        
