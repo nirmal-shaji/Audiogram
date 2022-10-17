@@ -67,6 +67,7 @@ module.exports = {
         try {
             res.render('admin/adminDashboard', { layout: "admin_layout" });
         } catch (error) {
+            console.log(error);
             next(error);   
         }
         
