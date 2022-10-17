@@ -25,7 +25,7 @@ module.exports = {
             
             let adminLogin
             if (req.session.adminLogin)
-            return res.redirect('/dashboard');
+            return res.redirect('/admin/dashboard');
             if (req.session.loginError) {
                 adminLogin = true;
                 delete req.session.loginError
@@ -74,7 +74,7 @@ module.exports = {
     dashboard: async (req, res, next) => {
         try {
             
-            res.render('admin/adminDashboard', { layout: "admin_layout" });
+            res.render('admin/adminDashboard', { layout: false });
         }
         
         catch (error) {
