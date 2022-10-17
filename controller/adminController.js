@@ -25,7 +25,7 @@ module.exports = {
             
             let adminLogin
             if (req.session.adminLogin)
-            return res.redirect('/admin/dashboard');
+            return res.redirect('/dashboard');
             if (req.session.loginError) {
                 adminLogin = true;
                 delete req.session.loginError
