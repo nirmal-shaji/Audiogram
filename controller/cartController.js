@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var mongoose = require("mongoose");
-var usersModel = require("../model/userschema");
+var usersModel = require("../model/userSchema");
 var categoryModel = require("../model/categorySchema")
 const productModel = require('../model/productSchema');
 var cartModel = require("../model/cartSchema");
@@ -12,7 +12,7 @@ const couponModel=require('../model/couponSchema')
 const orderModel = require('../model/orderSchema');
 const razorpay=require('./razorpayController')
 const cartFunctions = require('./cartFunctions');
-const { findOne } = require("../model/userschema");
+const { findOne } = require("../model/userSchema");
 
 
 

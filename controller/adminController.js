@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const mongoose = require("mongoose");
-const usersModel = require("../model/userschema");
+const usersModel = require("../model/userSchema");
 const categoryModel = require("../model/categorySchema")
 const productModel = require('../model/productSchema');
 const adminModel = require('../model/adminSchema');
@@ -12,7 +12,7 @@ const fs = require('fs');
 const path = require('path');
 var session = require('express-session');
 const bcrypt = require("bcrypt");
-const { findOneAndUpdate } = require("../model/userschema");
+const { findOneAndUpdate } = require("../model/userSchema");
 const admin = require("../model/adminSchema");
 
 
