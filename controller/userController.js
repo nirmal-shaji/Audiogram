@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var mongoose = require("mongoose");
-var usersModel = require("../model/userSchema");
+var usersModel = require("../model/userschema");
 var categoryModel = require("../model/categorySchema");
 var productModel = require('../model/productSchema');
 var addressModel = require('../model/addressSchema');
@@ -12,7 +12,7 @@ const bcrypt = require("bcrypt");
 const otp=require('./otp');
 const { VerificationAttemptContext } = require("twilio/lib/rest/verify/v2/verificationAttempt");
 
-const { findOneAndUpdate } = require("../model/userSchema");
+const { findOneAndUpdate } = require("../model/userschema");
 
 module.exports = {
   home: async (req, res, next) => {
