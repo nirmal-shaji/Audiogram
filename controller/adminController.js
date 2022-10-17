@@ -45,18 +45,18 @@ module.exports = {
         const { email, password } = req.body;
  
         const admin = await adminModel.findOne({ "email": email }).lean();
-        if(admin)
-        correct = await bcrypt.compare(password, admin.password)
-        if (email == 'admin@gmail.com' && correct) {
+        // if(admin)
+        // correct = await bcrypt.compare(password, admin.password)
+        // if (email == 'admin@gmail.com' && correct) 
             
             req.session.adminLogin = true;
            
             res.redirect('/admin/dashboard');
-        }
-        else {
-            req.session.loginError = true;
-            res.redirect( '/admin');
-        }
+        
+        // else {
+        //     req.session.loginError = true;
+        //     res.redirect( '/admin');
+        // }
         } catch (error) {
             console.log(error);
             next(error);  
