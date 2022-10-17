@@ -17,53 +17,70 @@ const admin = require("../model/adminSchema");
 
 
 module.exports = {
-
   //---------------------------------------------------admin login ----------------------------------------------------------
    
     loginPage: (req, res, next) => {
-      
-             let adminLogin
-        if (req.session.adminLogin)
+       
+        try {
+            
+            let adminLogin
+            if (req.session.adminLogin)
             return res.redirect('/admin/dashboard');
-        if (req.session.loginError) {
-            adminLogin = true;
-            delete req.session.loginError
+            if (req.session.loginError) {
+                adminLogin = true;
+                delete req.session.loginError
+                
+            }
+            
+            res.render('admin/adminSignIn',{layout:"admin_layout",adminLogin});
             
         }
-          
-        res.render('admin/adminSignIn',{layout:"admin_layout",adminLogin});
-        
-       
-    },
+        catch (error) {
+            console.log(error);
+            next(error);  
+        }
+            
+        },
 
     login: async (req, res, next) => {
-       
-              var correct;
-        const { email, password } = req.body;
- 
-        const admin = await adminModel.findOne({ "email": email }).lean();
-        if(admin)
-        correct = await bcrypt.compare(password, admin.password)
-        if (email == 'admin@gmail.com' && correct) {
-            
-            req.session.adminLogin = true;
+        try {
            
-            res.redirect('/admin/dashboard');
+            var correct;
+            const { email, password } = req.body;
+            
+            const admin = await adminModel.findOne({ "email": email }).lean();
+            if(admin)
+            correct = await bcrypt.compare(password, admin.password)
+            if (email == 'admin@gmail.com' && correct) {
+                
+                req.session.adminLogin = true;
+                
+                res.redirect('/admin/dashboard');
+            }
+            else {
+                req.session.loginError = true;
+                res.redirect( '/admin');
+            }
+            
         }
-        else {
-            req.session.loginError = true;
-            res.redirect( '/admin');
+        catch (error) {
+            console.log(error);
+            next(error);  
         }
-        
-      
-    },
+            
+        },
 
   //-------------------------------------------------admin dashboard-------------------------------------------------------------
     dashboard: async (req, res, next) => {
-        
+        try {
+            
             res.render('admin/adminDashboard', { layout: "admin_layout" });
+        }
         
-        
+        catch (error) {
+            console.log(error);
+            next(error);  
+        }
         
         
     },
