@@ -21,7 +21,7 @@ module.exports = {
   //---------------------------------------------------admin login ----------------------------------------------------------
    
     loginPage: (req, res, next) => {
-        try {
+      
              let adminLogin
         if (req.session.adminLogin)
             return res.redirect('/admin/dashboard');
@@ -32,46 +32,37 @@ module.exports = {
         }
           
         res.render('admin/adminSignIn',{layout:"admin_layout",adminLogin});
-        } catch (error) {
-            console.log(error);
-            next(error);
-        }
+        
        
     },
 
     login: async (req, res, next) => {
-        try {
+       
               var correct;
         const { email, password } = req.body;
  
         const admin = await adminModel.findOne({ "email": email }).lean();
-        // if(admin)
-        // correct = await bcrypt.compare(password, admin.password)
-        // if (email == 'admin@gmail.com' && correct) 
+        if(admin)
+        correct = await bcrypt.compare(password, admin.password)
+        if (email == 'admin@gmail.com' && correct) {
             
             req.session.adminLogin = true;
            
             res.redirect('/admin/dashboard');
-        
-        // else {
-        //     req.session.loginError = true;
-        //     res.redirect( '/admin');
-        // }
-        } catch (error) {
-            console.log(error);
-            next(error);  
         }
+        else {
+            req.session.loginError = true;
+            res.redirect( '/admin');
+        }
+        
       
     },
 
   //-------------------------------------------------admin dashboard-------------------------------------------------------------
     dashboard: async (req, res, next) => {
-        try {
+        
             res.render('admin/adminDashboard', { layout: "admin_layout" });
-        } catch (error) {
-            console.log(error);
-            next(error);   
-        }
+        
         
         
         
@@ -116,7 +107,7 @@ module.exports = {
              const userdetails = await usersModel.find().lean();
         res.render('admin/usersTable',{layout:"admin_layout",userdetails})
         } catch (error) {
-            console.log(error);
+            
             next(error);  
         }
        
