@@ -10,8 +10,9 @@ const cartFunctions = require('./cartFunctions');
 
 
 module.exports = {
-    addWishlist: async(req, res, next) => {
-        const productId = req.body.product;
+    addWishlist: async (req, res, next) => {
+        try {
+                  const productId = req.body.product;
         let userId = req.session.userId;
         wishlist = await wishlistModel.findOne({ userId: userId._id }).lean();
         if (wishlist) {
@@ -26,39 +27,54 @@ module.exports = {
             { userId: userId._id }
         ).populate("products.productId").lean();
         price = (wishlistData.products[0].productId.amount - wishlistData.products[0].productId.discount);
-        console.log(price);
-        await wishlistModel.updateOne({ userId: userId._id, "products.productId": productId },  { "products.$.price": price })
+      
+        await wishlistModel.updateOne({ userId: userId._id, "products.productId": productId },  { "products.$.price": price }) 
+        } catch (error) {
+            next(error);  
+        }
+ 
     },
     wishlistData: async (req, res, next) => {
-        userId = req.session.userId;
+        try {
+            userId = req.session.userId;
         
         wishlistDatas = await wishlistModel.findOne(
             { userId: userId._id }
         ).populate("products.productId").lean();
-        console.log(wishlistDatas);
-        
+        if (wishlistDatas) {
+            if (!wishlistDatas.products[0]) {
+                res.render('user/emptywishlist');
+            }
         stocks = await Promise.all(wishlistDatas.products.map( async(i) => {
-            console.log(i.productId._id);
+            
             stock = await productModel.findOne({ _id: i.productId._id }, { _id: 0, stock: 1 }).lean();
             
             return stock;
         }));
-       
-        console.log(stocks);
-        // totalAmount = await cartFunctions.totalAmount(cartData);
-        if (wishlistDatas.products[0]) {
+     
+      
+        
             res.render('user/wishlist', { userheader: true, wishlistDatas,stocks })
         }
         else {
             res.render('user/emptywishlist')
+        } 
+        } catch (error) {
+            next(error);  
         }
+       
     },
     delete: async (req, res, next) => {
-        productId = req.body.product
+        try {
+             productId = req.body.product
        
         userId = req.session.userId
-        console.log(req.body.product)
-       deletes = await wishlistModel.updateOne({ userId: userId._id }, { $pull: { products: { productId: req.body.product } } })  
+        
+       deletes = await wishlistModel.updateOne({ userId: userId._id }, { $pull: { products: { productId: req.body.product } } }) 
+        } catch (error) {
+            next(error); 
+        }
+        
     }
     
 

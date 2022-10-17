@@ -5,10 +5,7 @@ const cartSchema = new mongoose.Schema({
         ref:'User'
         // required:true
     },
-    couponDiscount: {
-        type: Number,
-        default:0
-    },
+   
     products: [
        {
         productId: {

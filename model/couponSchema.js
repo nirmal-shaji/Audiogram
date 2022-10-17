@@ -4,11 +4,11 @@ const couponSchema = new mongoose.Schema({
         type: String,
     },
     discountAmount: {
-        type: String,
+        type: Number,
         
     },
     minAmount: {
-        type:String,
+        type:Number,
     },
     expiryDate: {
         type:Date,

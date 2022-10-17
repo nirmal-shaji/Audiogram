@@ -44,7 +44,7 @@ const orderSchema = new mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        default:"Pending"
+        default: "Ordered"
     },
     paymentType: {
         type: String,
@@ -52,16 +52,21 @@ const orderSchema = new mongoose.Schema({
     },
     paymentStatus: {
         type: String,
-        default:"ordered"
+        default:"Pending"
     },
     orderId: {
         type: String,
         
     },
     totalAmount: {
-        type:String
+        type:Number
     },
-    
+    amountPaid: {
+        type:Number
+    },
+    discount:{
+        type:Number,
+    },
     products: [
         {
          productId: {

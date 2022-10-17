@@ -11,7 +11,7 @@
                                     <li><a href="index.html">Home</a></li>
                                     {{!-- <li><a href="shop-grid-sidebar-left.html">Shop</a></li> --}}
                                     <li class="active" aria-current="page">Signup</li>
-                                </ul>
+                                </ul>signupForm
                             </nav>
                         </div>
                     </div>
@@ -71,24 +71,26 @@
   $("#signupForm").validate( { 
 rules: { 
   first_name: { 
-        required: true, minlength: 1 
+        required: true, minlength: 2 ,lettersonly: true 
 },
   last_name: { 
-        required: true, minlength: 1 
+        required: true, minlength: 2 
 },
  phone_number: {
-         required: false,
-   minlength: 10 
+  required: true,
+    minlength: 10 ,
+    maxlength:10,
+   digits: true,
 },
   email: {
      required: true, email: true, minlength: 5 
 },
  
   password: {
-     required: false, minlength: 1, maxlength: 10 
+     required: true, minlength: 5
 },
   confirm_password: {
-     required: false, 
+     required: true, 
      equalTo: "#password" 
 } },
       messages: {

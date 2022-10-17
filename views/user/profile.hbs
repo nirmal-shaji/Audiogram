@@ -156,10 +156,11 @@
                         </ul> {{/products}}
                       </td>
                       {{!-- <td scope="row">gfgf</td> --}}
-                      <td id="orderStatus" scope="row" >{{orderStatus}}</td>
+                      <td id="{{_id}}" scope="row" >{{orderStatus}}</td>
+                      
                       <td scope="row">
                         <a href="#"> <button class="btn btn-outline-danger btn-sm"
-                          onclick="cancelOrder('{{_id}}');">Cancel?</button></a>
+                          onclick="cancelOrder('{{_id}}','{{orderStatus}}');">Cancel?</button></a>
                       </td>
                     </tr>
                     {{/each}}
@@ -188,7 +189,7 @@
                           {{this.lastName}},<br>{{this.address}},<br>{{this.city}},<br>{{this.state}},<br>{{this.pincode}},<br>{{this.landMark}},<br>{{this.phoneNumber}},<br>{{this.alternatePhoneNumber}}.
                           </p>
                           <a href="#" data-bs-toggle="modal" data-bs-target="#editAddressDetails"
-                            data-bs-whatever="@getbootstrap"><svg xmlns="http://www.w3.org/2000/svg" width="16"
+                            data-bs-whatever="@getbootstrap" onclick="editAddresses('{{this._id}}');"><svg xmlns="http://www.w3.org/2000/svg" width="16"
                               height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                               <path
                                 d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
@@ -251,70 +252,31 @@
                 </div>
               </div>
             </div>
-            {{!-- -------------------------------------manage
-            orders----------------------------------------------------------- --}}
-            <div id="changer4" style="display: none;">
-              <button type="button" class="btn btn-light mb-3 "
-                style="color: #fff; background-color: #b19361; text-decoration: none; " data-bs-toggle="modal"
-                data-bs-target="#addressDetails" data-bs-whatever="@getbootstrap">Edit</button>
-
-              <div class="card mb-4">
-                <div class="card-body">
-                  <div class="row ">
-                    <div class="col-sm-3 ">
-                      <p class="mb-0">Full Nsdfsfameqwertyui</p>
-                    </div>
-                    <div class="col-sm-9">
-                      <p class="text-muted mb-0">Johnatan Smith</p>
-                    </div>
-                  </div>
-                  <hr style="background-color: black;">
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <p class="mb-0">Email</p>
-                    </div>
-                    <div class="col-sm-9">
-                      <p class="text-muted mb-0">example@example.com</p>
-                    </div>
-                  </div>
-                  <hr style="background-color: black;">
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <p class="mb-0">Mobile</p>
-                    </div>
-                    <div class="col-sm-9">
-                      <p class="text-muted mb-0">(097) 234-5678</p>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {{!--
-            ---------------------------------------change-password---------------------------------------------------------------------
-            --}}
+            {{!-- -------------------------------------manage orders----------------------------------------------------------- --}}
+       
+            {{!-----------------------------------------change-password-----------------------------------------------------------------------}}
             <div id="changer5" style="display: none;">
               <form>
                 <div class="mb-3">
                   <label for="exampleInputEmail1" class="form-label">Old Password</label>
-                  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                  <input id="oldPassword" type="password" class="form-control"  aria-describedby="emailHelp">
                   {{!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
                   --}}
                 </div>
                 <div class="mb-3">
-                  <label for="exampleInputPassword1" class="form-label">Password</label>
-                  <input type="password" class="form-control" id="exampleInputPassword1">
+                  <label for="exampleInputPassword1" class="form-label">New Password</label>
+                  <input type="password" class="form-control" id="newPassword">
                 </div>
                 <div class="mb-3">
                   <label for="exampleInputPassword1" class="form-label">Confirm Password</label>
-                  <input type="password" class="form-control" id="exampleInputPassword1">
+                  <input id="confirmPassword" type="password" class="form-control">
                 </div>
                 {{!-- <div class="mb-3 form-check">
                   <input type="checkbox" class="form-check-input" id="exampleCheck1">
                   <label class="form-check-label" for="exampleCheck1">Check me out</label>
                 </div> --}}
-                <button type="submit" class="btn "
-                  style="color: #fff; background-color: #b19361; text-decoration: none; ">Submit</button>
+                <button type="button" class="btn "
+                  style="color: #fff; background-color: #b19361; text-decoration: none; " onclick="changePassword();">Submit</button>
               </form>
             </div>
             {{!--
@@ -335,24 +297,24 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <form action="/edit_userdata" method="post">
+                <form action="/editUserData" method="post">
                   <div class="mb-3">
                     <label for="recipient-name" class="col-form-label">First Name:</label>
-                    <input name="first_name" value="{{userData.first_name}}" type="text" class="form-control"
+                    <input name="first_name" type="text" class="form-control"
                       id="recipient-name">
                   </div>
                   <div class="mb-3">
                     <label for="recipient-name" class="col-form-label">Last Name:</label>
-                    <input name="last_name" value="{{userData.last_name}}" type="text" class="form-control"
+                    <input name="last_name"  type="text" class="form-control"
                       id="recipient-name">
                   </div>
-                  <div class="mb-3">
+                  {{!-- <div class="mb-3">
                     <label for="recipient-name" class="col-form-label">Email:</label>
-                    <input name="email" value="{{userData.email}}" type="text" class="form-control" id="recipient-name">
-                  </div>
+                    <input name="email" type="text" class="form-control" id="recipient-name" disabled>
+                  </div> --}}
                   <div class="mb-3">
                     <label for="recipient-name" class="col-form-label">Mobile:</label>
-                    <input name="phone_number" value="{{userData.phone_number}}" type="text" class="form-control"
+                    <input name="phone_number"  type="text" class="form-control"
                       id="recipient-name">
                   </div>
 
@@ -366,36 +328,36 @@
           </div>
         </div>
 
-        <!-- ========================= MODAL ADDRESSDETAILS // ========================= -->
+        <!-- ========================= MODAL Add ADDRESSDETAILS // ========================= -->
         <div class="modal fade" id="addressDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
           aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Edit Address Details</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add Address Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <form action="/new_address" method="post">
+                <form action="" method="post" id="addAddress">
 
 
                   <div class="row">
                     <div class="col-lg-6">
                       <div class="default-form-box">
                         <label>First Name <span>*</span></label>
-                        <input type="text" id="firstName" value="{{address.[0].firstName}}" name="firstName" />
+                        <input type="text" id="firstName" value="{{address.[0].firstName}}" name="firstName" required/>
                       </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="default-form-box">
                         <label>Last Name <span>*</span></label>
-                        <input type="text" id="lastName" value="{{address.[0].lastName}}" name="lastName" />
+                        <input type="text" id="lastName" value="{{address.[0].lastName}}" name="lastName" required/>
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>Phone number<span>*</span></label>
-                        <input type="text" id="phoneNumber" value="{{address.[0].phoneNumber}}" name="phoneNumber" />
+                        <input type="text" id="phoneNumber" value="{{address.[0].phoneNumber}}" name="phoneNumber" required/>
                       </div>
                     </div>
                     <div class="col-12">
@@ -409,7 +371,7 @@
                       <div class="default-form-box">
                         <label>Type <span>*</span></label>
                         <select class="country_option nice-select wide" name="type" id="type">
-                          <option value="{{address.[0].type}}" selected>{{address.[0].type}}</option>
+                          
                           <option value="home">Home</option>
                           <option value="office">Office</option>
 
@@ -420,36 +382,36 @@
                       <div class="default-form-box">
                         <label>Street address <span>*</span></label>
                         <input id="address" name="address" value="{{address.[0].address}}"
-                          placeholder="House number and street name" type="text" />
+                          placeholder="House number and street name" type="text" required/>
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="default-form-box">
-                        <input placeholder="Apartment, suite, unit etc. (optional)" type="text" />
+                        <input placeholder="Apartment, suite, unit etc. (optional)" type="text" required/>
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>Town / City <span>*</span></label>
-                        <input id="city" type="text" value="{{address.[0].city}}" name="city" />
+                        <input id="city" type="text" value="{{address.[0].city}}" name="city" required/>
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>State <span>*</span></label>
-                        <input id="state" value="{{address.[0].state}}" type="text" name="state" />
+                        <input id="state" value="{{address.[0].state}}" type="text" name="state" required />
                       </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="default-form-box">
-                        <label>Land Mark<span>*</span></label>
+                        <label>Land Mark<span></span></label>
                         <input id="landMark" value="{{address.[0].landMark}}" type="text" name="landMark" />
                       </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="default-form-box">
                         <label> Pincode <span>*</span></label>
-                        <input name="pincode" type="text" value="{{address.[0].pincode}}" />
+                        <input id="pincode" name="pincode" type="text" value="{{address.[0].pincode}}" required/>
                       </div>
                     </div>
 
@@ -480,40 +442,40 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <form action="/order_confirmed/{{cartData._id}}" method="post">
+                <form action="" method="post" id="form1">
 
 
                   <div class="row">
                     <div class="col-lg-6">
                       <div class="default-form-box">
                         <label>First Name <span>*</span></label>
-                        <input type="text" id="firstName" value="{{address.[0].firstName}}" name="firstName" />
+                        <input type="text" id="firstName1" value="{{address.[0].firstName}}" name="firstName" required/>
                       </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="default-form-box">
                         <label>Last Name <span>*</span></label>
-                        <input type="text" id="lastName" value="{{address.[0].lastName}}" name="lastName" />
+                        <input type="text" id="lastName1" value="{{address.[0].lastName}}" name="lastName" required />
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>Phone number<span>*</span></label>
-                        <input type="text" id="phoneNumber" value="{{address.[0].phoneNumber}}" name="phoneNumber" />
+                        <input type="text" id="phoneNumber1" value="{{address.[0].phoneNumber}}" name="phoneNumber" required/>
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>Alterante phone number</label>
-                        <input type="text" id="alternatePhoneNumber" value="{{address.[0].alternatePhoneNumber}}"
+                        <input type="text" id="alternatePhoneNumber1" value="{{address.[0].alternatePhoneNumber}}"
                           name="alternatePhoneNumber" />
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>Type <span>*</span></label>
-                        <select class="country_option nice-select wide" name="type" id="type">
-                          <option value="{{address.[0].type}}" selected>{{address.[0].type}}</option>
+                        <select class="country_option nice-select wide" name="type" id="type1">
+                          
                           <option value="home">Home</option>
                           <option value="office">Office</option>
 
@@ -523,37 +485,37 @@
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>Street address <span>*</span></label>
-                        <input id="address" name="address" value="{{address.[0].address}}"
-                          placeholder="House number and street name" type="text" />
+                        <input id="address1" name="address1" value=" "
+                          placeholder="House number and street name" type="text" required/>
                       </div>
                     </div>
-                    <div class="col-12">
+                    {{!-- <div class="col-12">
                       <div class="default-form-box">
                         <input placeholder="Apartment, suite, unit etc. (optional)" type="text" />
                       </div>
-                    </div>
+                    </div> --}}
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>Town / City <span>*</span></label>
-                        <input id="city" type="text" value="{{address.[0].city}}" name="city" />
+                        <input id="city1" type="text" value=" " name="city" required/>
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="default-form-box">
                         <label>State <span>*</span></label>
-                        <input id="state" value="{{address.[0].state}}" type="text" name="state" />
+                        <input id="state1" value=" " type="text" name="state" required/>
                       </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="default-form-box">
                         <label>Land Mark<span>*</span></label>
-                        <input id="landMark" value="{{address.[0].landMark}}" type="text" name="landMark" />
+                        <input id="landMark1" value=" " type="text" name="landMark" />
                       </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="default-form-box">
                         <label> Pincode <span>*</span></label>
-                        <input type="text" value="{{address.[0].pincode}}" />
+                        <input id="pincode1" type="text" value=" " required/>
                       </div>
                     </div>
 
@@ -561,7 +523,7 @@
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Update Details</button>
+                    <button type="submit" class="btn btn-primary">Update Details</button>
                 </form>
               </div>
             </div>
@@ -626,6 +588,56 @@
   </script>
   <!--===============================================================================================-->
   <script src="/js/main.js"></script>
+  
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.js"
+></script>
+<style>
+  .error { color: rgb(253, 5, 5); }
+</style>
+<script>
+
+  $("#addAddressDetails").validate( { 
+rules: { 
+  firstName: { 
+        required: true, minlength: 2 ,lettersonly: true 
+},
+  lastName: { 
+        required: true, minlength: 2 ,lettersonly: true 
+},
+ phoneNumber: {
+  required: true,
+    minlength: 10 ,
+    maxlength:10,
+   digits: true,
+},
+  email: {
+     required: true, email: true, minlength: 5 
+},
+  type: {
+    required: true 
+  },
+  address:{
+    required: true ,minlength:3
+  },
+  city: {
+    required: true , minlength: 3
+  },
+  state:{
+    required: true , minlength:3
+  },
+  pincode: {
+    required: true , minlength: 5
+  }
+ 
+ },})
+
+</script>
 
 </body>
 
@@ -672,9 +684,36 @@
   function changepassword(divId) {
     document.getElementById('changer').innerHTML = document.getElementById(divId).innerHTML;
   }
+ function changePassword(){
+  oldPassword=document.getElementById('oldPassword').value;
+  newPassword=document.getElementById('newPassword').value;
+  confirmPassword=document.getElementById('confirmPassword').value;
+  console.log(oldPassword);
+   $.ajax({
+    url: '/changePassword',
+    data: {
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+      confirmPassword: confirmPassword,
+      },
 
+    method: 'post',
+    success: (response) => {
+        
+       
+       
+          
+    },
+     });
+
+
+ }
   
-  function cancelOrder(id){
+  function cancelOrder(id,orderStatus){
+    console.log(orderStatus);
+   if(orderStatus=='cancelled'||orderStatus=='delivered'){
+    location.reload();
+   }
      $.ajax({
     url: '/cancelOrder',
     data: {
@@ -687,17 +726,108 @@
     method: 'post',
     success: (response) => {
         console.log(response);
-        $('#orderStatus').text("cancelled");
+       location.reload();
         $("#orderStatus td:contains('c')").html("cancelled");
           
     }
          });
   }
+   function editAddresses(addId) {
+   console.log('its working');
+    $.ajax({
+      url: '/address_fetching',
+      data: {
+
+        address: addId,
+
+
+      },
+      method: 'post',
+      success: (res) => {
+       console.log(res.address[0].address);
+              
+
+        document.getElementById("address1").value = res.address[0].address;
+        document.getElementById("firstName1").value = res.address[0].firstName;
+        if (res.address[0].pincode)
+          document.getElementById("pincode1").value = res.address[0].pincode;
+        if (res.address[0].phoneNumber) {
+
+          document.getElementById("phoneNumber1").value = res.address[0].phoneNumber;
+        }
+        else {
+
+          document.getElementById("phoneNumber1").value = "null";
+        }
+        document.getElementById("lastName1").value = res.address[0].lastName;
+
+        if (res.address[0].alternatePhoneNumber) {
+          console.log('truee')
+          document.getElementById("alternatePhoneNumber1").value = res.address[0].alternatePhoneNumber;
+        }
+        else {
+          console.log("false")
+          document.getElementById("alternatePhoneNumber1").value = "null";
+        }
+        document.getElementById("city1").value = res.address[0].city;
+        document.getElementById("type1").value = res.address[0].type;
+        if (res.address[0].landMark) {
+          document.getElementById("landMark1").value = res.address[0].landMark;
+        }
+        else {
+          document.getElementById("landMark1").value = "null";
+        }
+        document.getElementById("state1").value = res.address[0].state;
+
+
+
+      },
+
+      error: (error) => {
+        alert('hierror')
+        console.log(error)
+      },
+    })
+  }
+
+  $("#form1").submit((e) => {
+    e.preventDefault();
+    
+   
+   
+      $.ajax({
+        url: '/editAddress',
+        data: $('#form1').serialize(),
+        method: 'post',
+        success: (res) => {
+          
+         location.reload();
+        }
+      });
+      });
+
+        $("#addAddress").submit((e) => {
+    e.preventDefault();
+    
+   
+   
+      $.ajax({
+        url: '/newAddress',
+        data: $('#form1').serialize(),
+        method: 'post',
+        success: (res) => {
+          location.reload();
+        }
+      });
+      });
+  
 </script>
 
-</body>
+  
 
-</html>
+
+
+
 <script src="assets/js/vendor/vendor.min.js"></script>
 <script src="assets/js/plugins/plugins.min.js"></script>
 

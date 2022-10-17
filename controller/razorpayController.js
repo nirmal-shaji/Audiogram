@@ -33,7 +33,7 @@ module.exports = {
     hmac =await hmac.digest('hex');
     if (hmac == razorData['razorResponse[razorpay_signature]'])
       return orderConfirmed = true;
-    console.log('its not working');
+    
     return orderConfirmed = false;
   }
   

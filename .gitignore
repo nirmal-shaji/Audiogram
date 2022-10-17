@@ -5,6 +5,7 @@
 
 # Ignoring images 
 /public/productUploads/
+/public/images/bannerImages/
 
 
 # Ignore files related to installed npm packages

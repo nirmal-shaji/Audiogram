@@ -6,6 +6,7 @@ const client = require('twilio')(accountSid, authToken);
 
 module.exports={
     doSms:(userData)=>{
+       
         
         return new Promise(async(resolve,reject)=>{
             let res={}
@@ -13,27 +14,26 @@ module.exports={
                
                 to :`+91${userData.phone_number}`,
                 channel:"sms"
-            }).then((reeee)=>{
-                res.valid=true;
+            }).then((res)=>{
+                res.valid = true;
+                
                 resolve(res);
             }).catch((err)=>{
-                console.log(err);
-
+               
+                reject(err);
             })
         })
     },
 
 
- otpVerify:(otpData,userData)=>{
-      console.log(otpData);
-    console.log(userData.phone_number); 
-   
+    otpVerify: (otpData, userData) => {
+     
     return new Promise(async(resolve,reject)=>{
         await client.verify.services(serviceSid).verificationChecks.create({
             to: `+91${userData.phone_number}`,
             code: otpData
         }).then((verifications) => {
-            console.log(verifications);
+            
             resolve(verifications.valid)
         });
     })

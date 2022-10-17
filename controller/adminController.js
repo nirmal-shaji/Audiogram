@@ -1,164 +1,312 @@
 var express = require("express");
 var router = express.Router();
-var mongoose = require("mongoose");
-var usersModel = require("../model/userSchema");
-var categoryModel = require("../model/categorySchema")
-var productModel = require('../model/productSchema');
-var adminModel = require('../model/adminSchema');
+const mongoose = require("mongoose");
+const usersModel = require("../model/userSchema");
+const categoryModel = require("../model/categorySchema")
+const productModel = require('../model/productSchema');
+const adminModel = require('../model/adminSchema');
 const orderModel = require('../model/orderSchema');
 const couponModel = require('../model/couponSchema');
 const bannerModel = require('../model/bannerSchema');
-const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 var session = require('express-session');
 const bcrypt = require("bcrypt");
 const { findOneAndUpdate } = require("../model/userSchema");
+const admin = require("../model/adminSchema");
 
 
 module.exports = {
 
-
+  //---------------------------------------------------admin login ----------------------------------------------------------
+   
     loginPage: (req, res, next) => {
+        try {
+             let adminLogin
         if (req.session.adminLogin)
-        return res.redirect('/admin/dashboard');
-        res.render('admin/signin',{layout:"admin_layout"});
+            return res.redirect('/admin/dashboard');
+        if (req.session.loginError) {
+            adminLogin = true;
+            delete req.session.loginError
+            
+        }
+          
+        res.render('admin/adminSignIn',{layout:"admin_layout",adminLogin});
+        } catch (error) {
+            next(error);
+        }
+       
     },
-    dashboard: (req, res, next) => {
-        res.render('admin/admindashboard',{layout:"admin_layout"});
-    },
+
     login: async (req, res, next) => {
+        try {
+              var correct;
         const { email, password } = req.body;
-        console.log(email+password);
+ 
         const admin = await adminModel.findOne({ "email": email }).lean();
-        console.log(admin.password);
-        var correct = await bcrypt.compare(password, admin.password)
+        if(admin)
+        correct = await bcrypt.compare(password, admin.password)
         if (email == 'admin@gmail.com' && correct) {
-            console.log('ethi')
+            
             req.session.adminLogin = true;
-            console.log(req.session.adminLogin);
+           
             res.redirect('/admin/dashboard');
         }
-    },
-    userdata: async(req,res,next) => {
-        
-        const userdetails = await usersModel.find().lean();
-        res.render('admin/table',{layout:"admin_layout",userdetails})
-       
-    },
-    userblock: async (req, res, next) => {
-       
-        const userIds = req.params.id
-       
-        await usersModel.updateOne({_id:userIds}, { block : true });
+        else {
+            req.session.loginError = true;
+            res.redirect( '/admin');
+        }
+        } catch (error) {
+            next(error);  
+        }
       
-        res.redirect('/admin/table');
+    },
+
+  //-------------------------------------------------admin dashboard-------------------------------------------------------------
+    dashboard: async (req, res, next) => {
+        try {
+            res.render('admin/adminDashboard', { layout: "admin_layout" });
+        } catch (error) {
+            next(error);   
+        }
         
+        
+        
+    },
+    
+    graphData: async (req, res, next) => {
+        try {
+             const eachDaySale = await orderModel.aggregate([{ $group: { _id: { day: { $dayOfMonth: "$createdAt" }, month: { $month: "$createdAt" }, year: { $year: "$createdAt" } }, total: { $sum: "$amountPaid" } } }]).sort({ _id: -1 })
+
+        const monthlySales = await orderModel.aggregate([{ $group: { _id: { month: { $month: "$createdAt" } }, total: { $sum: "$amountPaid" } } }]).sort({ _id: -1 })
+        const paymentType = await orderModel.aggregate([{ $group: { _id: { paymentType: "$paymentType" }, total: { $sum: "$amountPaid" } } }]).sort({ paymentType: 1 })
+       
+        graphData = { paymentType, monthlySales, eachDaySale }
+        let paymentTotal = [];
+        let monthlyTotal = [];
+        paymentTotal[0] = paymentType[0].total;
+        paymentTotal[1] = paymentType[1].total;
+        let total;
+        
+        for (i = 0; i <= 11; i++){
+            total = 0;
+            for (j = 0; j <= monthlySales.length-1; j++){
+                
+                if (monthlySales[j]._id.month == (i + 1))
+                    
+                    total = total + monthlySales[j].total;    
+            }
+            monthlyTotal[i] = total;
+        }
+       
+       
+        res.json({ message: "success" ,paymentTotal,monthlyTotal});
+        } catch (error) {
+            next(error);  
+        }
        
     },
-    useractive:async (req, res, next) => {
-        
-        const userIds = req.params.id
-      
-        await usersModel.updateOne({_id:userIds}, { block : false });
-      
-        res.redirect('/admin/table');
-        
+   
+    userData: async (req, res, next) => {
+        try {
+             const userdetails = await usersModel.find().lean();
+        res.render('admin/usersTable',{layout:"admin_layout",userdetails})
+        } catch (error) {
+            next(error);  
+        }
+       
+    },
+    
+    productData: async (req, res, next) => {
+        try {
+             const productData = await productModel.find().populate('category').lean();
+     
+        res.render('admin/productTable',{layout:"admin_layout",productData});
+        } catch (error) {
+            next(error);   
+        }
        
     },
 
-    editblock: async(req, res, next) =>{
-     
-        const userId = req.params.id
-        const blocks = await usersModel.find({ _id: userId }).lean();
-        console.log(blocks, "userdetails");
+    orderData: async (req, res, next) => {
+        try {
+            orderData = await orderModel.find().populate("userId").populate("products.productId").lean(); 
+            res.render('admin/orderDataTable',{orderData})
+        } catch (error) {
+            next(error); 
+        }
         
-        res.render('admin/form', { layout:"admin_layout",blocks});
     },
-      renderaddcategory: (req, res, next) =>{
-        res.render('admin/addcategory');
+
+    couponData: async (req, res, next) => {
+        try {
+           couponData = await couponModel.find().lean();
+        
+        res.render('admin/couponTable',{couponData}) 
+        } catch (error) {
+            next(error);  
+        }
+        
     },
-    createcategory: async (req, res, next) => {  
-        let categorydata = await categoryModel.find().lean();
+
+    bannerData: async (req, res, next) => {
+        try {
+              bannerData = await bannerModel.find().populate("productId").populate("categoryId").populate("couponId").lean();
+        res.render('admin/bannerTable',{bannerData});
+        } catch (error) {
+            next(error); 
+        }
+      
+    },
+
+    
+    categoryData: async (req, res, next) => {
+        try {
+             let categorydata = await categoryModel.find().lean();
+        
+        res.render('admin/categoryTable',{layout:"admin_layout",categorydata});
+        } catch (error) {
+            next(error);  
+        }
+       
+    },
+
+// --------------------------------------user block/unblock------------------------------------------------------------------------------------------
+
+    userBlock: async (req, res, next) => {
+         try {
+               const userIds = req.body.id
+        await usersModel.updateOne({_id:userIds}, { block : true });
+        res.json({ message: 'success' });
+         } catch (error) {
+            next(error);
+         }
+     
+        
+    },
+     
+    userUnblock: async (req, res, next) => {
+        try {
+              const userIds = req.body.id
+        await usersModel.updateOne({_id:userIds}, { block : false });
+        res.json({ message: 'success' });
+        } catch (error) {
+            next(error);  
+        }
+      
+        
+    },
+// -------------------------------category section--------------------------------------------------------------------------------------
+
+    
+    renderAddCategory: (req, res, next) => {
+        try {
+            res.render('admin/addCategory');
+        } catch (error) {
+            next(error);  
+        }
+         
+    },
+    
+    addCategory: async (req, res, next) => {  
+        try {
+             let categorydata = await categoryModel.find().lean();
         categoryexist = categorydata.filter((i) => {
-            if (i.category.toUpperCase() === req.body.category.toUpperCase())
+         if (i.category.toUpperCase() === req.body.category.toUpperCase())
                 return true;
          })
-       
-        console.log('the category is ',categoryexist)
         if (categoryexist[0]) {
             return res.send('category already exist');
         }
         await categoryModel.create(req.body);
-        res.redirect('/admin/categorytable');
-    },
-    categorydata: async (req, res, next) => {
-        console.log('vilikanindto');
-        let categorydata = await categoryModel.find().lean();
-        console.log(categorydata,'hgjkhgjghjk');
-        res.render('admin/table_category',{layout:"admin_layout",categorydata});
-    },
-    rendereditcategory: (req, res, next) => {
-        const categoryId = req.params.id;
-        console.log(categoryId);
-        res.render('admin/editcategory', {layout:"admin_layout",categoryId})
-    },
-    editcategory: async (req, res, next) => {
-        
-        await categoryModel.findOneAndUpdate({ "_id": req.params.id }, { $set: { "category": req.body.category  } });
-        res.redirect('/admin/categorytable');
-    },
-    deletecategory: async (req, res, next) => {
-    
-        await categoryModel.deleteOne({ _id: req.params.id });
-        res.redirect('/admin/categorytable');
-        
-    },
-    renderaddproduct: async (req, res, next) => {
-        const categorydata = await categoryModel.find().lean();
-        console.log(categorydata);
-        res.render('admin/addproduct',{layout:"admin_layout",categorydata});
-    },
-    addproduct: async (req, res, next) => {
-        console.log(req.body);
-        const productnames = await productModel.findOne({ name: req.body.name }).lean();
-            console.log(productnames);
-        if (productnames) 
-            return res.send('product already exists');
-        
-        console.log(req.files);
-        const arrImages = req.files.map((value) => value.filename);
-        console.log(arrImages);
-        req.body.imagepath = arrImages;
-        console.log(req.body);
-        await productModel.create(req.body);
-        res.redirect("/admin/productTable");
-
-    },
-    productData: async (req, res, next) => {
-        const productData = await productModel.find().populate('category').lean();
-        console.log(productData);
-        res.render('admin/tableProduct',{layout:"admin_layout",productData});
+        res.redirect('/admin/categoryData');
+        } catch (error) {
+            next(error);
+        }
+       
     },
   
-    rendereditProduct: async (req, res, next) => {
-        editId = req.params.id;
-        console.log(req.params.id);
-        productData = await productModel.findOne({ _id: editId }).populate('category').lean();
-         console.log("ethiloooooooooooooo", productData);
-        const categoryData = await categoryModel.find().lean();
-        console.log(categoryData);
-        res.render('admin/editProduct',{layout:"admin_layout",productData ,categoryData});
+    renderEditCategory: async (req, res, next) => {
+        try {
+              const categoryId = req.params.id;
+        categoryData = await categoryModel.findOne({ _id: categoryId }).lean();
+        res.render('admin/editCategory', {layout:"admin_layout",categoryData})
+        } catch (error) {
+            next(error);   
+        }
+      
     },
-    editProduct: async (req, res, next) => {
-        console.log('param');
-        console.log(req.params.id); 
-        console.log(req.body);
-            let arrImages = req.files.map((value) => value.filename);
+
+    editCategory: async (req, res, next) => {
+        try {
+            await categoryModel.findOneAndUpdate({ "_id": req.params.id }, { $set: { "category": req.body.category  } });
+        res.redirect('/admin/categoryData');
+        } catch (error) {
+            next(error);  
+        }
+        
+    },
+
+    deletecategory: async (req, res, next) => {
+        try {
+              await categoryModel.deleteOne({ _id: req.params.id });
+        res.redirect('/admin/categoryData');
+        } catch (error) {
+            next(error); 
+        }
+      
+        
+    },
+
+   // ----------------------------------------product section-------------------------------------------------------------------
+    
+    
+    renderAddProduct: async (req, res, next) => {
+        try {
+             const categorydata = await categoryModel.find().lean();
        
+        res.render('admin/addProduct',{layout:"admin_layout",categorydata});
+        } catch (error) {
+            next(error);
+        }
+       
+    },
+    addProduct: async (req, res, next) => {
+        try {
+                 const productnames = await productModel.findOne({ name: req.body.name }).lean();
+           
+        if (productnames) 
+            return res.send('product already exists');
+       
+        const arrImages = req.files.map((value) => value.filename);
+        req.body.imagepath = arrImages;
+        await productModel.create(req.body);
+        res.redirect("/admin/productData");
+        } catch (error) {
+            next(error); 
+        }
+   
+
+    },
+  
+    renderEditProduct: async (req, res, next) => {
+        try {
+               editId = req.params.id;
+        productData = await productModel.findOne({ _id: editId }).populate('category').lean();
+        const categoryData = await categoryModel.find().lean();
+        res.render('admin/editProduct',{layout:"admin_layout",productData ,categoryData});
+        } catch (error) {
+            next(error); 
+        }
+     
+    },
+
+    editProduct: async (req, res, next) => {
+        try {
+              let arrImages = req.files.map((value) => value.filename);
         if (arrImages[0]) {
             imagepat = await productModel.findOne({ "_id": req.params.id }, { imagepath: 1, _id: 0 }).lean();
-            console.log(imagepat);
+           
             imagepat.imagepath.map(( i) => fs.unlinkSync(path.join(__dirname, '..', 'public', 'product_uploads', i)))
             req.body.imagepath = arrImages;
             await productModel.findOneAndUpdate({ "_id": req.params.id }, { $set: { "name": req.body.name , "brandName": req.body.brandName,'description':req.body.description,'category':req.body.category,'stock':req.body.stock,'amount':req.body.amount,'discount':req.body.discount,'imagepath':req.body.imagepath} });
@@ -166,100 +314,230 @@ module.exports = {
         else {
             await productModel.findOneAndUpdate({ "_id": req.params.id }, { $set: { "name": req.body.name , "brandName": req.body.brandName,'description':req.body.description,'category':req.body.category,'stock':req.body.stock,'amount':req.body.amount,'discount':req.body.discount} });
         }
-        res.redirect('/admin/productTable');      
+        res.redirect('/admin/productData');
+        } catch (error) {
+            next(error); 
+        }
+            
     },
+
     deleteProduct: async (req, res, next) => {
-        imagepat = await productModel.findOne({ "_id": req.params.id }, { imagepath: 1, _id: 0 });
+        try {
+              imagepat = await productModel.findOne({ "_id": req.params.id }, { imagepath: 1, _id: 0 });
         imagepat.imagepath.map((i) => fs.unlinkSync(path.join(__dirname, '..', 'public', 'product_uploads', i)));
         await productModel.findOneAndDelete({ "_id": req.params.id }, { $set: { "name": req.body.name , "brandName": req.body.brandName,'description':req.body.description,'category':req.body.category,'stock':req.body.stock,'amount':req.body.amount,'discount':req.body.discount,'imagepath':req.body.imagepath} });
-        res.redirect('/admin/productTable'); 
+        res.redirect('/admin/productData'); 
+        } catch (error) {
+            next(error);  
+        }
+      
     },
-    orderData: async(req, res, next) => {
-        orderData = await orderModel.find().populate("userId").populate("products.productId").lean(); 
-        console.log(orderData.products);
-        res.render('admin/tableorderData',{orderData})
-    },
-    renderaddCoupon: (req, res, next) => {
-        res.render('admin/addCoupon');
-    },
-    renderChangeOrderStatus: (req, res, next) => {
-        id = req.params.id;
-        console.log(id);
-        res.render('admin/editOrderStatus',{id});  
-    },
-    editOrderStatus: async (req, res, next) => {
-        await orderModel.findOneAndUpdate({ _id: req.params.id }, { orderStatus: req.body.productStatus });
-        res.redirect('/admin/orders');
-        
-    },addCoupon:async(req, res, next) => {
-        console.log(req.body);
- 
+//  ----------------------------------------------coupon section------------------------------------------------------------------------------------------
     
-        couponNameExist = await couponModel.find({ couponName: req.body.couponName }).lean();
-        console.log(couponNameExist,'234567890');
-        couponIdExist = await couponModel.find({ couponCode: req.body.couponCode }).lean();
-        console.log(couponIdExist)
+    
+    renderAddCoupon: (req, res, next) => {
+        try {
+            res.render('admin/addCoupon');
+        } catch (error) {
+            next(error); 
+        }
+        
+    },
+
+    addCoupon: async (req, res, next) => {
+        try {
+                  couponNameExist = await couponModel.find({ couponName: req.body.couponName }).lean();
+       couponIdExist = await couponModel.find({ couponCode: req.body.couponCode }).lean();
         if(couponNameExist[0] || couponIdExist[0])
-        return res.json({ message: "the coupon already exist" });
+        return res.json({ message: "couponExist" });
         await couponModel.create(req.body);
         res.redirect('/admin/couponData');
+        } catch (error) {
+            next(error);
+        }
+ 
     },
-    couponData: async (req, res, next) => {
-        couponData = await couponModel.find().lean();
-        res.render('admin/tableCoupon',{couponData})
-    },
+  
     renderEditCoupon: async (req, res, next) => {
-        id = req.params.id
+        try {
+             id = req.params.id
         couponData = await couponModel.find({ _id: req.params.id }).lean();
-        console.log(couponData);
+        couponData[0].expiryDate = couponData[0].expiryDate.toISOString().substring(0, 10);
         couponData = couponData[0];
         res.render('admin/editCoupon', { id, couponData});
+        } catch (error) {
+            next(error);
+        }
+       
         
     },
-    editCoupon: async(req, res, next) => {
-        await couponModel.findOneAndUpdate({ _id: req.params.id }, { $set: { couponName:req.body.couponName,discountAmount:req.body.discountAmount,minAmount:req.body.minAmount,expiryDate:req.body.expiryDate,couponCode:req.body.couponCode} })
-        
+
+    editCoupon: async (req, res, next) => {
+        try {
+            await couponModel.findOneAndUpdate({ _id: req.params.id }, { $set: { couponName:req.body.couponName,discountAmount:req.body.discountAmount,minAmount:req.body.minAmount,expiryDate:req.body.expiryDate,couponCode:req.body.couponCode} })
         res.redirect('/admin/couponData');
+        } catch (error) {
+            next(error); 
+        }
+        
     },
+
     deleteCoupon: async (req, res, next) => {
-    
-        await couponModel.deleteOne({ _id: req.params.id });
+        try {
+             await couponModel.deleteOne({ _id: req.params.id });
         res.redirect('/admin/couponData');
+        } catch (error) {
+            next(error); 
+        }
+       
         
     },
-    renderAddBanner: async(req, res, next) => {
-        productData = await productModel.find().lean();
-        categoryData = await categoryModel.find().lean();
-        couponData = await couponModel.find().lean();
-        res.render('admin/addBanner',{productData,categoryData,couponData});
+
+// -----------------------------------------------------order section---------------------------------------------------------------------------------------
+
+
+    renderEditOrderStatus: async (req, res, next) => {
+        try {
+            id = req.params.id;
+        var delivered, ordered, confirmed, shipped, cancelled;
+        orderData = await orderModel.findOne({ _id: id }, { orderStatus: 1, _id: 1 }).lean();
+        if (orderData.orderStatus == "Delivered"){
+            delivered = true;
+        }
+        else if (orderData.orderStatus == "Ordered"){
+            ordered = true;
+        }
+        else if (orderData.orderStatus == "Confirmed"){
+            confirmed = true;
+        }
+        else if (orderData.orderStatus == "Shipped") {
+            shipped = true;   
+        }
+        else if (orderData.orderStatus == "Cancelled") {
+            cancelled = true;
+        }
+    
+        res.render('admin/editOrderStatus',{id,delivered,ordered,confirmed,shipped,cancelled}); 
+        } catch (error) {
+            next(error); 
+        }
+         
+    },
+    editOrderStatus: async (req, res, next) => {
+        try {
+            await orderModel.findOneAndUpdate({ _id: req.params.id }, { orderStatus: req.body.productStatus });
+        res.redirect('/admin/orderData');
+        
+        } catch (error) {
+            next(error); 
+        }
+        
+    },
+    
+//   -------------------------------------------------banner section-------------------------------------------------------------------------------------------------------  
+   
+    
+    renderAddBanner: async (req, res, next) => {
+        try {
+             productData = await productModel.find().lean();
+        res.render('admin/addBanner',{productData});
+        } catch (error) {
+            next(error); 
+        }
+       
     },
     addBanner: async(req, res, next) => {
-        console.log(req.body);
-       
+        try {
+             if (req.body.productId == "null") {
+        delete req.body.productId
+       }
         req.body.image = req.file.filename;
         await bannerModel.create(req.body);
         res.redirect('/admin/bannerData');
+        } catch (error) {
+            next(error);
+        }
+       
         
     },
-    bannerData: async(req, res, next) => {
-        bannerData = await bannerModel.find().populate("productId").populate("categoryId").populate("couponId").lean();
-        res.render('admin/tableBanner',{bannerData});
+  
+    renderEditBanner: async (req, res, next) => {
+        try {
+              id = req.params.id;
+        bannerData = await bannerModel.findOne({ _id: req.params.id }).populate('productId').lean();
+        var productData,productExist
+        if (bannerData.productId) {
+            productData = await productModel.find().lean();
+            productExist = true;
+        }
+        res.render('admin/editBanner', { bannerData, productData, productExist ,id});
+        } catch (error) {
+            next(error);  
+        }
+      
     },
-    renderEditBanner: async(req, res, next) => {
-        bannerData = await bannerModel.find().lean();
-        productData = await productModel.find().lean();
-        categoryData = await categoryModel.find().lean();
-        couponData = await couponModel.find().lean();
-        res.render('admin/editBanner',{bannerData,categoryData,productData,couponData})
+
+    editBanner: async(req, res, next) => {
+        try {
+            if (req.file){
+        imagePath= await bannerModel.findOne({ _id: req.params.id }, { _id: 0, image: 1 });
+            fs.unlinkSync(path.join(__dirname, '..', 'public', 'images', 'bannerImages', imagePath.image));
+            req.body.image = req.file.filename;
+            await bannerModel.findOneAndUpdate({ _id: req.params.id }, { image: req.body.image });
+        }
+        if (req.body.productId == 'null') {
+            delete req.body.productId
+            await bannerModel.updateOne({ _id: req.params.id }, { $unset: { productId:"" } });
+        }
+        else if (req.body.productId) {
+            
+            await bannerModel.findOneAndUpdate({ _id: req.params.id }, {  productId: req.body.productId });
+        }
+        if(req.body.heading)
+            await bannerModel.findOneAndUpdate({ _id: req.params.id }, { heading: req.body.heading });
+        if(req.body.description)
+            await bannerModel.findOneAndUpdate({ _id: req.params.id }, { description: req.body.description });
+         res.redirect('/admin/bannerData'); 
+        } catch (error) {
+            next(error);
+        }
+       
+      
     },
-    editBanner: (req, res, next) => {
-        console.log(req.body);
-    }
+
+    deleteBanner: async (req, res, next) => {
+        try {
+              imagePath= await bannerModel.findOne({ _id: req.params.id }, { _id: 0, image: 1 });
+        fs.unlinkSync(path.join(__dirname, '..', 'public', 'images', 'bannerImages', imagePath.image));
+        await bannerModel.findOneAndDelete({ _id: req.params.id });
+        res.redirect('/admin/bannerData');
+        } catch (error) {
+            next(error);  
+        }
+      
+    },
+    logout: (req, res, next) => {
+        try {
+            delete req.session.adminLogin,
+            res.redirect('/admin');
+        } catch (error) {
+            next(error);
+        }
+        
+    },
     
 
+//--------------------------------------render error page-----------------------------------------------------------
     
-    
-
+    errorCreate: (req, res, next) => {
+        next(createError(404));
+    },
+    errorPage:(err, req, res, next) =>{
+        console.log("admin error route handler")
+          res.status(err.status || 500);
+          adminError = true;
+        res.render('error', {adminError });
+      }
     
       
 }

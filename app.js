@@ -30,7 +30,12 @@ app.engine('hbs', hbs.engine({
     },
     singleTotal: function (amount, discount) {
       return (amount - discount);
+    },
+    dateSlicer: function (date) {
+     return date.toISOString().substring(0, 10);
+
     }
+    
 } }));
 
 app.use(logger('dev'));
@@ -43,8 +48,12 @@ app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
-  cookie: { maxAge:day}
-}))
+  cookie: { maxAge: day }
+}));
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
 
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
