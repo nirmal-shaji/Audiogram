@@ -74,7 +74,7 @@ module.exports = {
     dashboard: async (req, res, next) => {
         try {
             
-            res.render('admin/adminDashboard', { layout: false });
+            res.render('admin/adminDashboard', { layout: "admin_layout" });
         }
         
         catch (error) {
